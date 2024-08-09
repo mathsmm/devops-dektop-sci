@@ -1,0 +1,15 @@
+PRECISA SER PASSADO UM ".cmds" AO DCC32 PORQUE TEM UM LIMITE NO TAMANHO DOS
+COMANDOS NO WINDOWS.
+
+
+O SEGUINTE COMANDO NO RAD STUDIO COMMAND PROMPT:
+msbuild <myProject>.dproj /p:DCC_UseMSBuildExternally=true
+
+GERA UM ARQUIVO ".cmds" QUE É PASSADO AO DCC32 QUANDO ELE VAI BUILDAR O PROJETO
+
+https://stackoverflow.com/questions/76416094/command-line-for-dcc-is-too-long-while-using-msbuild-to-compile-delphi-project
+"You can place all the parameters in a commands file, each on a separate line, 
+and give that file to the compiler prefixed with an @."
+
+EXECUTAR NO TERMINAL:
+"c:\program files (x86)\embarcadero\studio\22.0\bin\dcc32.exe" @myProject.cmds myProject.dpr

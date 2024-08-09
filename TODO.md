@@ -1,0 +1,3 @@
+- [X] Gerar um dicionário com todos os arquivos que estão dentro de um dado diretório. Deve entrar em todas as subpastas para procurar pelos arquivos.<br>
+  FEITO: `auto_dcc32.dir_utils.all_files_to_dict`
+- [ ] Script pra ficar tentando executar o DCC32 em um projeto. Toda vez que der erro, o script vai ter que ler qual arquivo o DCC32 não achou e vai consultar no dicionário de arquivos. Quando ele consultar um ".dcu", por exemplo, vai ter que incluir este dcu num arquivo ".cmds" com a opção `-U"caminho\da\pasta\onde\está\o\arquivo";` e tentar executar o DCC32 denovo.
