@@ -11,5 +11,5 @@ https://stackoverflow.com/questions/76416094/command-line-for-dcc-is-too-long-wh
 "You can place all the parameters in a commands file, each on a separate line, 
 and give that file to the compiler prefixed with an @."
 
-EXECUTAR NO TERMINAL:
+EXECUTAR NO TERMINAL (só funciona pro Delphi 10):
 "c:\program files (x86)\embarcadero\studio\22.0\bin\dcc32.exe" @myProject.cmds myProject.dpr
