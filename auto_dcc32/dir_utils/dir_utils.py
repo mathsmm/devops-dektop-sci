@@ -1,4 +1,4 @@
-from displayable_path import DisplayablePath
+from dir_utils.displayable_path import DisplayablePath
 from pathlib import Path
 import time
 
@@ -24,10 +24,10 @@ def all_files_to_dict(base_folder: str, exclusions: list):
     return dict_files
 
 def main():
-    d = all_files_to_dict('C:\\DW\\Practice', ['.svn','.db','.jpg'])
+    d = all_files_to_dict('C:\\DW\\Practice', ['.svn','.db','.jpg', '.~'])
     for k, v in d.items():
         time.sleep(0.02)
         print(k, v)
 
-if __name__=="__main__":
-    main()
+# if __name__=="__main__":
+#     main()

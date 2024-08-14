@@ -1,12 +1,7 @@
 # https://stackoverflow.com/questions/9727673/list-directory-tree-structure-in-python
-# Copied from "abstrus" answer. USAGE:
-#
-# paths = DisplayablePath.make_tree(
-#     Path('doc'),
-#     criteria=is_not_hidden
-# )
-# for path in paths:
-#     print(path.displayable())
+# Copiado da resposta do usuário "abstrus".
+# 
+# EXEMPLO DE USO:
 #
 # # With a criteria (skip hidden files)
 # def is_not_hidden(path):
@@ -16,7 +11,7 @@
 # for path in paths:
 #     print(path.displayable())
 #
-# EXAMPLE OUTPUT:
+# EXEMPLO DE SAÍDA:
 #
 # doc/
 # ├── _static/
@@ -109,11 +104,12 @@ class DisplayablePath(object):
         return ''.join(reversed(parts))
 
     def generate_key_value_path(self):
-        # key is the filename
-        # value is the path to its parent folder
-        # return None if the path is a folder
+        """ A chave retornada é o nome do arquivo e o valor é o caminho até o 
+        diretório onde está o arquivo. Retorna None se o 'self.path' não for um 
+        arquivo.
+        """
         if self.path.is_dir():
             return None
-        key = self.displayname
-        value = str(self.path.parent)
+        key = self.displayname.lower()
+        value = str(self.path.parent).lower()
         return {key: value}
