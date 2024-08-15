@@ -23,6 +23,9 @@ FLAG_FILE_EXT_DICT = {
     ".inc": "I"
 }
 
+# Caminho para onde vão os arquivos gerados por este programa
+OUT_DIR = "out"
+
 # Argumento do programa. Qual projeto
 ext_var_1 = "vpra"
 
@@ -42,7 +45,7 @@ for dir in PROJECT_DIRS_DICT[ext_var_1]:
 file_dict_list: 'list[dict]' = []
 
 # Lista que contém nomes que não são incluídos nos dicionários de arquivos
-file_exclusions = ['.svn','.db','.jpg', '.~']
+file_exclusions = ['.svn','.db','.jpg','.~']
 
 # Armazena caminhos para informar nas flags passadas ao DCC32
 flag_paths = {"U": [], "R": [], "O": [], "I": []}
@@ -81,16 +84,29 @@ def append_file_path_to_flag_paths(file: str):
 
 def main():
     try:
-        os.remove("auto_dcc32.cmds")
+        lp_file = open("library_path.txt", "rt")
+    except Exception as e:
+        raise Exception("ERRO AO ABRIR O ARQUIVO 'library_path.txt':", str(e))
+    library_path = lp_file.read()
+    lp_file.close()
+
+    try:
+        os.makedirs(OUT_DIR)
+    except OSError as e:
+        if e.errno != errno.EEXIST:
+            raise Exception(f"ERRO AO CRIAR PASTA {OUT_DIR}")
+
+    try:
+        os.remove(f"{OUT_DIR}\\auto_dcc32.cmds")
     except OSError as e:
         if e.errno != errno.ENOENT: # errno.ENOENT = no such file or directory
-            raise Exception("ERRO AO EXCLUIR ARQUIVO 'auto_dcc32.cmds' ANTES DE INICIAR A CONSTRUÇÃO DO COMANDO")
+            raise Exception("ERRO AO EXCLUIR ARQUIVO 'auto_dcc32.cmds'")
 
     i = 0
     for path in project_paths:
         print(f'Consultando arquivos do caminho "{str(path)}"')
         file_dict_list.append(all_files_to_dict(str(path), file_exclusions))
-        f = open(f"file_dict_{i+1}.txt", "wt")
+        f = open(OUT_DIR+"\\dict_"+str(path).replace('\\','_').replace(':','')+".txt", "wt")
         for file, path in file_dict_list[i].items():
             f.write(path + '\\' + file + "\n")
         f.close()
@@ -120,7 +136,7 @@ def main():
             halt = True
 
         try:
-            cmd_file = open("auto_dcc32.cmds", "at")
+            cmd_file = open(f"{OUT_DIR}\\auto_dcc32.cmds", "at")
         except Exception as e:
             print(f"COMANDO {i}: ERRO AO ABRIR O ARQUIVO 'practice.cmd' PARA SALVÁ-LO: {str(e)}\n")
             print(f"ÚLTIMO COMANDO: \n{cmd}")
