@@ -29,11 +29,11 @@ OUT_DIR = "out"
 # Argumento do programa. Qual projeto
 ext_var_1 = "vpra"
 
-# Argumento do programa. Caminho do dcc32
-ext_var_2 = "C:\\Program Files (x86)\\Borland\\Delphi7\\Bin\\DCC32.EXE"
+# Argumento do programa. Caminho do Delphi
+ext_var_2 = "C:\\Program Files (x86)\\Borland\\Delphi7"
 
 # Caminho do DCC32
-dcc32 = Path(ext_var_2)
+delphi_path = Path(ext_var_2)
 
 # Armazena todos os diretórios mais externos que o projeto usa
 project_paths: 'list[Path]' = []
@@ -80,15 +80,18 @@ def append_file_path_to_flag_paths(file: str):
             flag_paths[FLAG_FILE_EXT_DICT[file_ext]].append(file_path)
             return
 
-    raise Exception(f"O ARQUIVO NÃO FOI ENCONTRADO NOS DICIONÁRIOS")
+    raise Exception(f"NÃO FOI ENCONTRADO NOS DICIONÁRIOS")
 
 def main():
     try:
-        lp_file = open("library_path.txt", "rt")
+        lib_path_file = open("library_path.txt", "rt")
     except Exception as e:
-        raise Exception("ERRO AO ABRIR O ARQUIVO 'library_path.txt':", str(e))
-    library_path = lp_file.read()
-    lp_file.close()
+        try:
+            lib_path_file = open("auto_dcc32_D7\\library_path.txt", "rt")
+        except Exception as e:
+            raise Exception("ERRO AO ABRIR O ARQUIVO 'library_path.txt':", str(e))
+    lib_path = lib_path_file.read().replace('$(DELPHI)', str(delphi_path))
+    lib_path_file.close()
 
     try:
         os.makedirs(OUT_DIR)
@@ -102,9 +105,12 @@ def main():
         if e.errno != errno.ENOENT: # errno.ENOENT = no such file or directory
             raise Exception("ERRO AO EXCLUIR ARQUIVO 'auto_dcc32.cmds'")
 
+    for path in lib_path.rsplit(";"):
+        flag_paths["U"].append(path)
+
     i = 0
     for path in project_paths:
-        print(f'Consultando arquivos do caminho "{str(path)}"')
+        print(f'CONSULTANDO ARQUIVOS DO CAMINHO "{str(path)}"')
         file_dict_list.append(all_files_to_dict(str(path), file_exclusions))
         f = open(OUT_DIR+"\\dict_"+str(path).replace('\\','_').replace(':','')+".txt", "wt")
         for file, path in file_dict_list[i].items():
@@ -112,12 +118,15 @@ def main():
         f.close()
         i += 1
 
-    print("INICIANDO CONSTRUÇÃO DOS COMANDOS DCC32")
+    print("INICIANDO CONSTRUÇÃO DO COMANDO DCC32")
+    last_cmd = ""
+    cmd = ""
     halt = False
     i = 0
     while True:
         i += 1
-        cmd = f'DCC32 {flag_paths_to_cmd()} {PROJECT_DIRS_DICT[ext_var_1][0]}\\practice.dpr'
+        last_cmd = cmd
+        cmd = f'DCC32 -M{flag_paths_to_cmd()} {PROJECT_DIRS_DICT[ext_var_1][0]}\\practice.dpr'
         proc_dcc32 = subprocess.Popen(args=cmd, shell=True, stdout=subprocess.PIPE)
         out, err = proc_dcc32.communicate()
 
@@ -129,23 +138,30 @@ def main():
             try:
                 append_file_path_to_flag_paths(file)
             except Exception as e:
-                print(f"COMANDO {i}: ERRO AO INCLUIR CAMINHO DO ARQUIVO '{file}': {str(e)}")
+                print(f"COMANDO {i}: ERRO AO INCLUIR ARQUIVO '{file}': {str(e)}")
                 halt = True
+        # elif 'was compiled with a different version of' in out_decoded:
+        #     # https://stackoverflow.com/questions/429275/why-are-my-units-compiled-with-a-different-version-of-my-own-files
+        #     # Consultar resposta do usuário Toon Krijthe para entender o problema
+        #     # Aqui, o compilador pode informar uma unit ou uma rotina. Se informar unit, esta
+        #     # unit deve ser incluída
+        #     pass
         else:
             print(f"COMANDO {i}: ERRO NÃO TRATADO DO DCC32: {out_decoded}")
             halt = True
 
         try:
-            cmd_file = open(f"{OUT_DIR}\\auto_dcc32.cmds", "at")
+            cmd_file = open(f"{OUT_DIR}\\auto_dcc32.cmds", "wt")
         except Exception as e:
             print(f"COMANDO {i}: ERRO AO ABRIR O ARQUIVO 'practice.cmd' PARA SALVÁ-LO: {str(e)}\n")
             print(f"ÚLTIMO COMANDO: \n{cmd}")
             break
 
-        cmd_file.write(f"{i} | {cmd}\n")
+        cmd_file.write(f"ULTIMO: {last_cmd}\n")
+        cmd_file.write(f"ATUAL: {cmd}\n")
         cmd_file.close()
         if halt: break
-        print(f"COMANDO {i}: BEM SUCEDIDO")
+        print(f"COMANDO {i}: BEM SUCEDIDO. ADICIONADO '{file}'")
 
 if __name__=="__main__":
     main()

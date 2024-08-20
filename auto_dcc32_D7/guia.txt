@@ -13,3 +13,10 @@ and give that file to the compiler prefixed with an @."
 
 EXECUTAR NO TERMINAL (só funciona pro Delphi 10):
 "c:\program files (x86)\embarcadero\studio\22.0\bin\dcc32.exe" @myProject.cmds myProject.dpr
+
+
+DEPENDÊNCIAS DO DCC32:
+- dcc32.cfg dentro do diretório do delphi 7 (C:\\Program Files (x86)\\Borland\\Delphi7)
+- projeto.cfg dentro da pasta onde está o projeto.dpr
+- library path do projeto que deve ser colocado dentro do 'library_path.txt'. 
+  O que tiver '$(DELPHI)' já é substituído pelo caminho do delphi
